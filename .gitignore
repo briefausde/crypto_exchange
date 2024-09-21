@@ -1,0 +1,16 @@
+.git/
+**/__pycache__
+**/*.pyc
+**/*.pyo
+**/*.pyd
+.idea/
+.vscode
+/.vscode/
+venv/
+README.md
+.pytest_cache/
+.secrets/
+.lets/
+.python-version
+.venv/
+.pdm-python

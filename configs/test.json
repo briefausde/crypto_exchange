@@ -1,0 +1,4 @@
+{
+    "redis_host": "redis-test",
+    "redis_port": 6379
+}

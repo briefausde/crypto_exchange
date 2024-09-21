@@ -1,0 +1,43 @@
+[project]
+name = "crypto-exchange"
+dynamic = ["version"]
+description = "CryptoExchange"
+readme = "README.md"
+authors = []
+dependencies = [
+    "aiohttp==3.9.3",
+    "pydantic>=2.9.2",
+    "pydantic-settings>=2.5.2",
+    "redis>=5.0.8",
+    "pytest>=8.3.3",
+    "pytest-aiohttp>=1.0.5",
+    "pytest-mock>=3.14.0",
+]
+requires-python = ">=3.11"
+license = { text = "MIT" }
+
+[build-system]
+requires = ["pdm-backend"]
+build-backend = "pdm.backend"
+
+[tool.pytest.ini_options]
+addopts = "-p no:warnings -p no:cacheprovider -q --tb=native"
+log_cli = true
+testpaths = [
+    "crypto_exchange/tests",
+]
+asyncio_mode = "auto"
+
+[tool.black]
+line-length = 80
+target-version = ['py311']
+extend-exclude = '''
+/(
+  | .git
+  | __pycache__
+  | __pypackages__
+  | .venv
+  | venv
+  | .ve
+)/
+'''
