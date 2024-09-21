@@ -7,7 +7,6 @@
 .vscode
 /.vscode/
 venv/
-README.md
 .pytest_cache/
 .secrets/
 .lets/
