@@ -8,11 +8,26 @@ Support providers:
 
 # Run
 
+``docker-compose build``
+
 ``docker-compose up app``
 
 Tests
 
 ``docker-compose run test``
+
+Isort
+
+``docker-compose run isort``
+
+Black
+
+``docker-compose run black``
+
+Mypy
+
+``docker-compose run mypy``
+
 
 # Examples
 

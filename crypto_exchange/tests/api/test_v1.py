@@ -1,14 +1,15 @@
+from unittest.mock import AsyncMock
+
 import aiohttp
 import pytest
 from aiohttp import web
-from unittest.mock import AsyncMock
 
 from crypto_exchange.api.v1 import convert
 from crypto_exchange.exchange.exceptions import (
     InvalidAssetAmount,
-    ProviderBadResponse,
-    PairNotFound,
     InvalidProvider,
+    PairNotFound,
+    ProviderBadResponse,
 )
 from crypto_exchange.exchange.schemas import ExchangeResult
 
@@ -41,7 +42,7 @@ async def test_convert_success(client, mocker):
         "currency_to": "USDT",
         "amount": 1,
         "exchange": "binance",
-        "cache_max_seconds": 300
+        "cache_max_seconds": 300,
     }
 
     response = await client.post("/convert", json=payload)
@@ -72,7 +73,7 @@ async def test_convert_invalid_provider(client, mocker):
         "currency_to": "USDT",
         "amount": 1,
         "exchange": "invalid_exchange",
-        "cache_max_seconds": 300
+        "cache_max_seconds": 300,
     }
 
     response = await client.post("/convert", json=payload)
@@ -92,7 +93,7 @@ async def test_convert_invalid_asset_amount(client, mocker):
         "currency_to": "USDT",
         "amount": 0.00001,
         "exchange": "binance",
-        "cache_max_seconds": 300
+        "cache_max_seconds": 300,
     }
 
     response = await client.post("/convert", json=payload)
@@ -112,7 +113,7 @@ async def test_convert_pair_not_found(client, mocker):
         "currency_to": "XYZ",
         "amount": 1,
         "exchange": "binance",
-        "cache_max_seconds": 300
+        "cache_max_seconds": 300,
     }
 
     response = await client.post("/convert", json=payload)
@@ -132,7 +133,7 @@ async def test_convert_provider_bad_response(client, mocker):
         "currency_to": "USDT",
         "amount": 1,
         "exchange": "binance",
-        "cache_max_seconds": 300
+        "cache_max_seconds": 300,
     }
 
     response = await client.post("/convert", json=payload)
@@ -152,7 +153,7 @@ async def test_convert_internal_error(client, mocker):
         "currency_to": "USDT",
         "amount": 1,
         "exchange": "binance",
-        "cache_max_seconds": 300
+        "cache_max_seconds": 300,
     }
 
     response = await client.post("/convert", json=payload)

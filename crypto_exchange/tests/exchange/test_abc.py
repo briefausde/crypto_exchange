@@ -1,14 +1,14 @@
+import json
 from datetime import datetime
 from decimal import Decimal
-import pytest
-import json
 
+import pytest
 import redis.asyncio as aioredis
 from aiohttp import ClientSession
 
 from crypto_exchange.config import get_config
-from crypto_exchange.exchange.schemas import ExchangeInfo, ExchangeRate
 from crypto_exchange.exchange.providers.abc import Provider
+from crypto_exchange.exchange.schemas import ExchangeInfo, ExchangeRate
 
 
 @pytest.fixture

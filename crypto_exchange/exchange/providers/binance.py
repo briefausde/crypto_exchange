@@ -1,15 +1,12 @@
 import logging
-from decimal import Decimal
 from datetime import datetime
+from decimal import Decimal
 
-from crypto_exchange.exchange.exceptions import (
-    PairNotFound,
-    ProviderBadResponse,
-)
+from crypto_exchange.exchange.exceptions import ProviderBadResponse
 from crypto_exchange.exchange.providers.abc import Provider
 from crypto_exchange.exchange.schemas import ExchangeInfo
 
-log = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 BASE_URL = "https://api.binance.com"
 
@@ -27,13 +24,10 @@ INVALID_SYMBOL_ERROR_CODE = -1121
 class Binance(Provider):
     """Binance cryptocurrency exchange provider."""
 
-    def _handle_api_error(self, url: str, status: int, data: dict) -> None:
-        if status == 200:
-            return
-        error_code = data.get("code")
-        if error_code in [PAIR_NOT_FOUND_ERROR_CODE, INVALID_SYMBOL_ERROR_CODE]:
-            raise PairNotFound("Pair not found.")
-        raise ProviderBadResponse()
+    NOT_FOUND_ERROR_CODES = [
+        PAIR_NOT_FOUND_ERROR_CODE,
+        INVALID_SYMBOL_ERROR_CODE,
+    ]
 
     async def _fetch_exchange_info(
         self,
@@ -46,10 +40,10 @@ class Binance(Provider):
                 currency_to=currency_to,
             )
         )
-        try:
-            asset_info = data[0]
-        except IndexError:
+        if len(data) == 0:
             raise ProviderBadResponse()
+
+        asset_info = data[0]
 
         if asset_info["fromIsBase"]:
             return ExchangeInfo(

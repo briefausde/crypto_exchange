@@ -1,8 +1,9 @@
-from aiohttp import web, ClientSession, ClientTimeout
 import logging
 from typing import AsyncGenerator
 
-log = logging.getLogger(__name__)
+from aiohttp import ClientSession, ClientTimeout, web
+
+logger = logging.getLogger(__name__)
 
 
 async def setup_requests(app: web.Application) -> AsyncGenerator:
@@ -15,10 +16,10 @@ async def setup_requests(app: web.Application) -> AsyncGenerator:
 
     app["http_session"] = http_session
 
-    log.info(f"HTTP session configured.")
+    logger.info(f"HTTP session configured.")
 
     try:
         yield http_session
     finally:
         await http_session.close()
-        log.info('HTTP session closed.')
+        logger.info("HTTP session closed.")

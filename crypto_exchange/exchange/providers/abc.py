@@ -1,44 +1,55 @@
 import json
 import logging
+from abc import ABC, abstractmethod
 from datetime import datetime
 from decimal import Decimal
-from abc import ABC, abstractmethod
+from typing import Any
 
 import redis.asyncio as aioredis
 from aiohttp import ClientSession
 
-from crypto_exchange.exchange.exceptions import InvalidAssetAmount
-from crypto_exchange.lib.utils import (
-    DecimalEncoder,
-    format_decimal,
+from crypto_exchange.exchange.exceptions import (
+    InvalidAssetAmount,
+    PairNotFound,
+    ProviderBadResponse,
 )
 from crypto_exchange.exchange.schemas import (
     ExchangeInfo,
     ExchangeRate,
     ExchangeResult,
 )
+from crypto_exchange.lib.utils import DecimalEncoder, format_decimal
 
-log = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 
 class Provider(ABC):
     """Abstract base class for cryptocurrency providers."""
+
+    NOT_FOUND_ERROR_CODES: list[int | str] = []
 
     def __init__(self, http_session: ClientSession, redis: aioredis.Redis):
         self.name = self.__class__.__name__
         self.http_session = http_session
         self.redis = redis
 
-    @abstractmethod
-    def _handle_api_error(self, url: str, status: int, data: dict) -> None:
-        """Fetch the ticker price from the provider's API."""
-        raise NotImplementedError("Must be implemented in the subclass.")
-
-    async def _fetch_data(self, url: str) -> dict | list:
+    async def _fetch_data(self, url: str) -> Any:
         async with self.http_session.get(url) as response:
             data = await response.json()
             self._handle_api_error(url, response.status, data)
             return data
+
+    def _handle_api_error(self, url: str, status: int, data: dict) -> None:
+        if (
+            isinstance(data, dict)
+            and data.get("code") in self.NOT_FOUND_ERROR_CODES
+        ):
+            raise PairNotFound("Pair not found.")
+        if status != 200:
+            logger.warning(
+                f"{self.name} returns status code {status} for url {url}"
+            )
+            raise ProviderBadResponse()
 
     @abstractmethod
     async def _fetch_exchange_info(
@@ -150,13 +161,14 @@ class Provider(ABC):
         ]
         cached_values = await self.redis.mget(cache_keys)
         for cached_value in cached_values:
-            if cached_value:
-                exchange_info = ExchangeInfo(**json.loads(cached_value))
-                if self._is_fresh_cache_data(
-                    cache_timestamp=exchange_info.timestamp,
-                    cache_max_seconds=cache_max_seconds,
-                ):
-                    return exchange_info
+            if not cached_value:
+                continue
+            exchange_info = ExchangeInfo.model_validate_json(cached_value)
+            if self._is_fresh_cache_data(
+                cache_timestamp=exchange_info.timestamp,
+                cache_max_seconds=cache_max_seconds,
+            ):
+                return exchange_info
         return None
 
     async def get_exchange_rate(
@@ -214,7 +226,7 @@ class Provider(ABC):
         cache_key = self._get_exchange_rate_cache_key(ticker)
         cached_value = await self.redis.get(cache_key)
         if cached_value:
-            exchange_rate = ExchangeRate(**json.loads(cached_value))
+            exchange_rate = ExchangeRate.model_validate_json(cached_value)
             if self._is_fresh_cache_data(
                 cache_timestamp=exchange_rate.timestamp,
                 cache_max_seconds=cache_max_seconds,

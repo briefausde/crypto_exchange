@@ -41,3 +41,25 @@ extend-exclude = '''
   | .ve
 )/
 '''
+
+[tool.mypy]
+python_version = "3.11"
+follow_imports = "skip"
+pretty = true
+strict_optional = false
+warn_no_return = true
+disallow_incomplete_defs = true
+disallow_untyped_defs = true
+ignore_missing_imports = true
+exclude = [
+    ".git",
+    "__pycache__",
+    "__pypackages__",
+    ".venv",
+    "venv",
+    ".ve",
+    "crypto_exchange/tests",
+]
+
+[tool.isort]
+line-length = 80

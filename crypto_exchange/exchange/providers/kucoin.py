@@ -1,6 +1,6 @@
 import logging
-from decimal import Decimal
 from datetime import datetime
+from decimal import Decimal
 
 from crypto_exchange.exchange.exceptions import (
     PairNotFound,
@@ -9,7 +9,7 @@ from crypto_exchange.exchange.exceptions import (
 from crypto_exchange.exchange.providers.abc import Provider
 from crypto_exchange.exchange.schemas import ExchangeInfo
 
-log = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 BASE_URL = "https://api.kucoin.com"
 
@@ -25,13 +25,7 @@ PAIR_NOT_FOUND_ERROR_CODE = "900001"
 class Kucoin(Provider):
     """Kucoin cryptocurrency exchange provider."""
 
-    def _handle_api_error(self, url: str, status: int, data: dict) -> None:
-        error_code = data.get("code")
-        if error_code == PAIR_NOT_FOUND_ERROR_CODE:
-            raise PairNotFound("Pair not found.")
-        if status != 200:
-            log.warning(f"Kucoin returns status code {status} for url {url}")
-            raise ProviderBadResponse()
+    NOT_FOUND_ERROR_CODES = [PAIR_NOT_FOUND_ERROR_CODE]
 
     async def _fetch_exchange_info(
         self,
@@ -51,10 +45,9 @@ class Kucoin(Provider):
             ticker = f"{currency_to}-{currency_from}"
             data = await _fetch(ticker)
 
-        try:
-            asset_info = data["data"]
-        except KeyError:
-            log.warning(f"Kucoin returned bad response: {data}")
+        asset_info = data.get("data")
+        if not asset_info:
+            logger.warning(f"Kucoin returned bad response: {data}")
             raise ProviderBadResponse()
 
         return ExchangeInfo(

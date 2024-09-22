@@ -16,6 +16,8 @@ COPY pyproject.toml pdm.lock README.md ./
 
 RUN pdm install --prod --no-lock --no-editable
 
+RUN pdm add --dev mypy black isort
+
 COPY . .
 
 EXPOSE 8080

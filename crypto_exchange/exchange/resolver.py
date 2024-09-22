@@ -1,19 +1,17 @@
 import logging
-import redis.asyncio as aioredis
 from decimal import Decimal
+
+import redis.asyncio as aioredis
 from aiohttp import ClientSession
 
+from crypto_exchange.exchange.exceptions import InvalidProvider, PairNotFound
 from crypto_exchange.exchange.providers.binance import Binance
 from crypto_exchange.exchange.providers.kucoin import Kucoin
 from crypto_exchange.exchange.schemas import ExchangeResult
 from crypto_exchange.lib.constants import INTERMEDIARY_CURRENCIES
-from crypto_exchange.exchange.exceptions import (
-    PairNotFound,
-    InvalidProvider,
-)
 from crypto_exchange.lib.utils import format_decimal
 
-log = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 PROVIDERS_MAP = {
     "binance": Binance,
@@ -23,7 +21,8 @@ PROVIDERS_MAP = {
 
 class ExchangeResolver:
     def __init__(
-        self, http_session: ClientSession,
+        self,
+        http_session: ClientSession,
         redis: aioredis.Redis,
         exchange: str | None,
     ):
@@ -70,7 +69,7 @@ class ExchangeResolver:
                     cache_max_seconds,
                 )
             except PairNotFound:
-                log.warning(
+                logger.warning(
                     f"Pair not found for {currency_from}/{currency_to} "
                     f"on {provider_name}"
                 )
@@ -96,7 +95,7 @@ class ExchangeResolver:
                 cache_max_seconds,
             )
         except PairNotFound:
-            log.info(
+            logger.info(
                 f"Pair not found for {currency_from}/{currency_to}. "
                 f"Trying intermediaries..."
             )
@@ -137,7 +136,7 @@ class ExchangeResolver:
                 )
                 return result
             except PairNotFound:
-                log.warning(
+                logger.warning(
                     f"Intermediary {intermediary} failed "
                     f"for {currency_from}/{currency_to}."
                 )

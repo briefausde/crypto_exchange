@@ -1,6 +1,7 @@
-import pytest
 from decimal import Decimal
 from unittest.mock import AsyncMock
+
+import pytest
 
 from crypto_exchange.exchange.providers.kucoin import Kucoin
 

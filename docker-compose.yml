@@ -46,6 +46,26 @@ services:
       - crypto_exchange_network
     command: pdm run pytest
 
+  black:
+    build:
+      <<: *build
+    volumes:
+      *volumes
+    command: pdm run black .
+
+  mypy:
+    build:
+      <<: *build
+    volumes:
+      *volumes
+    command: pdm run mypy .
+
+  isort:
+    build:
+      <<: *build
+    volumes:
+      *volumes
+    command: pdm run isort .
 
 networks:
   crypto_exchange_network:

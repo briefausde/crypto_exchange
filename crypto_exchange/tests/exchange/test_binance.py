@@ -1,6 +1,8 @@
-import pytest
-from unittest.mock import AsyncMock
 from decimal import Decimal
+from unittest.mock import AsyncMock
+
+import pytest
+
 from crypto_exchange.exchange.exceptions import (
     PairNotFound,
     ProviderBadResponse,
@@ -15,7 +17,7 @@ MOCK_EXCHANGE_INFO = {
     "fromAssetMaxAmount": "100",
     "toAssetMinAmount": "10",
     "toAssetMaxAmount": "10000",
-    "fromIsBase": True
+    "fromIsBase": True,
 }
 
 
